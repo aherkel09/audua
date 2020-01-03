@@ -94,11 +94,12 @@ class Audua {
         var begin = tracks.slice(0, fiftyOrLess);
         var end = tracks.slice(fiftyOrLess);
 
-        _this.removeTracks(begin).done(function(data) {
+        return _this.removeTracks(begin).done(function(data) {
+          console.log('removed tracks...');
           _this.modifyPlaylist(shuffled, end);
         });
       } else {
-        _this.addTracks(shuffled);
+        return _this.addTracks(shuffled);
       }
     });
   }
@@ -162,7 +163,7 @@ class Audua {
     return $.ajax({
       url: '/remove_tracks',
       data: {
-        tracks: trackList,
+        tracks: JSON.stringify({uris: trackList}),
         playlist_id: _this.audua_playlist,
       },
     });
@@ -207,7 +208,7 @@ class Audua {
 
   showComplete() {
     const _this = this;
-    $('#playlist-link').attr('href', this.audua_href);
+    $('#playlist-link').attr('href', _this.audua_href);
     $('#reset').click(function() {
       _this.reset();
     });

@@ -1,10 +1,11 @@
-const functions = require('firebase-functions');
-const config = functions.config();
 const express = require('express');
 const request = require('request');
 const cors = require('cors');
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
+
+const functions = require('firebase-functions');
+const config = functions.config();
 
 const client_id = config.spotify.id;
 const client_secret = config.spotify.secret;
@@ -14,7 +15,7 @@ const uri_choices = {
   production: 'https://audua.link/callback',
 };
 
-const redirect_uri = uri_choices.production;
+const redirect_uri = uri_choices.local;
 
 var generateRandomString = function(length) {
   var text = '';
@@ -28,6 +29,7 @@ var generateRandomString = function(length) {
 
 var setError = function(res, msg) {
   res.cookie('__session', ' ??? ???' + msg)
+    .set('Cache-Control', 'private')
     .redirect('/');
 };
 
@@ -45,7 +47,7 @@ app.get('/login', function(req, res) {
   var state = generateRandomString(16) + '_' + rememberMe;
   var scope = 'user-read-private user-read-email user-read-recently-played playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private';
 
-  res.cookie('__session', state)
+  res.cookie('__session', state, {overwrite: true})
     .set('Cache-Control', 'private')
     .redirect('https://accounts.spotify.com/authorize?' +
       querystring.stringify({
@@ -72,8 +74,7 @@ app.get('/callback', function(req, res) {
   if (state === null || state !== storedState) {
     setError(res, 'state_mismatch');
   } else {
-    res.clearCookie('__session');
-    var authOptions = {
+    var options = {
       url: 'https://accounts.spotify.com/api/token',
       form: {
         code: code,
@@ -86,7 +87,7 @@ app.get('/callback', function(req, res) {
       json: true
     };
 
-    request.post(authOptions, function(error, response, body) {
+    request.post(options, function(error, response, body) {
       if (!error && response.statusCode === 200) {
         var access_token = body.access_token;
 
@@ -95,6 +96,7 @@ app.get('/callback', function(req, res) {
         }
 
         res.cookie('__session', access_token)
+          .set('Cache-Control', 'private')
           .redirect('/');
       } else {
         setError(res, 'invalid_token');
@@ -121,6 +123,7 @@ app.get('/refresh_token', function(req, res) {
     if (!error && response.statusCode === 200) {
       var access_token = body.access_token;
       res.cookie('__session', access_token + '???' + refresh_token)
+        .set('Cache-Control', 'private')
         .redirect('/');
     } else {
       setError(res, response.statusMessage);
@@ -255,13 +258,9 @@ app.get('/tracks', function(req, res) {
 
 
 app.get('/add_tracks', function(req, res) {
-  var access_token = req.cookies.access_token;
+  var access_token = req.cookies.__session.split('???')[0];
   var tracks = req.query.tracks;
   var playlist_id = req.query.playlist_id;
-
-  var info = JSON.stringify({
-    uris: tracks,
-  });
 
   var options = {
     url: 'https://api.spotify.com/v1/playlists/' + playlist_id + '/tracks',
@@ -269,26 +268,24 @@ app.get('/add_tracks', function(req, res) {
       'Authorization': 'Bearer ' + access_token,
       'Content-Type': 'application/json',
     },
-    body: info,
+    body: tracks,
+    json: true,
   };
 
   request.post(options, function(error, response, body) {
     if (!error && (response.statusCode === 200 || response.statusCode === 201)) {
       res.send({
         body: body,
-        success: true,
       });
     } else {
-      res.send({
-        success: false,
-      });
+      setError(res, response.statusMessage);
     }
   });
 });
 
 
 app.get('/remove_tracks', function(req, res) {
-  var access_token = req.cookies.access_token;
+  var access_token = req.cookies.__session.split('???')[0];
   var playlist_id = req.query.playlist_id;
   var trackList = [];
   var tracks = req.query.tracks;
@@ -306,18 +303,16 @@ app.get('/remove_tracks', function(req, res) {
       'Content-Type': 'application/json',
     },
     body: tracks,
+    json: true,
   };
 
   request.delete(options, function(error, response, body) {
     if (!error && (response.statusCode === 200 || response.statusCode === 201)) {
       res.send({
         body: body,
-        success: true,
       });
     } else {
-      res.send({
-        success: false,
-      });
+      setError(res, response.statusMessage);
     }
   });
 });
