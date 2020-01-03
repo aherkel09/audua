@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>audua</title>
+    <meta name="description" content="music app for small world networks">
+    <meta name="keywords" content="music, music app, social, playlist, shuffle">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+    <link rel="manifest" href="favicon/site.webmanifest">
+    <link rel="mask-icon" href="favicon/safari-pinned-tab.svg" color="#9900ff">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#f2f2f2">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.8.4/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.8.5/firebase-storage.js"></script>
+
+    <script>
+      var firebaseConfig = {
+        apiKey: "AIzaSyCSuKjehpad0Fy60tltK-Ce7KihI8LyVhI",
+        authDomain: "audua-16a1d.firebaseapp.com",
+        databaseURL: "https://audua-16a1d.firebaseio.com",
+        projectId: "audua-16a1d",
+        storageBucket: "audua-16a1d.appspot.com",
+        messagingSenderId: "820980542359",
+        appId: "1:820980542359:web:b5c78e26ca0904ab6fb2d2",
+        measurementId: "G-4X78KXGWF5"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      firebase.analytics();
+    </script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="static/main.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+          integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  </head>
+
+  <body>
+    <img id="logo-image" src="static/audua-text.svg" alt="audua">
+    <h1 id="description">music app for small world networks</h1>
+    <div id="features">
+      <h3>features (coming soon)</h3>
+      <ul>
+        <li>shuffle your playlist any way you like</li>
+        <li>share music interactively with your friends</li>
+        <li>share your favorite artists & tracks across platforms</li>
+      </ul>
+    </div>
+  </body>
+</html>
