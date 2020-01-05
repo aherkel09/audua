@@ -32,17 +32,17 @@ function compileAll() {
 }
 
 
-function readCookie(cookieNum) {
+function readCookie(cookieName) {
   let cookies = document.cookie.split(';');
+
   for (let c in cookies) {
     let keyValue = cookies[c].replace(' ', '').split('=');
-    if (keyValue[0] === '__session') {
-      let cookieSet = keyValue[1].split('???');
-      return cookieSet[cookieNum];
+    if (keyValue[0] === cookieName) {
+      return JSON.parse(decodeURIComponent(keyValue[1]));
     }
   }
 
-  return null;
+  return {};
 }
 
 
@@ -72,57 +72,76 @@ function addClicks(audua) {
 }
 
 
-function loadProfile(access_token, templates) {
-  const userTemplate = templates.user,
-      playlistTemplate = templates.playlist;
-
+function requestUser(access_token, templates) {
   $.ajax({
     url: '/me',
     data: {
       access_token: access_token,
     },
-  }).done(function(data) {
-    const user_id = data.body.id;
-    $('#user').html(userTemplate(data.body));
+    success: function(data) {
+      if (data.body) {
+        loadUser(data, templates)
+      } else {
+        requestLogout();
+      }
+    },
+    error: function(error) {
+      showError(error);
+    },
+  });
+}
 
-    const audua = new Audua(user_id, access_token);
-    audua.getRecentlyPlayed();
 
-    audua.getAllPlaylists().done(function(data) {
-      audua.getAuduaPlaylist(data.playlists);
-      $('#playlist').html(playlistTemplate({
-        playlists: data.playlists.items,
-      }));
-      addClicks(audua);
-    });
+function loadUser(data, templates) {
+  const userTemplate = templates.user;
+  const playlistTemplate = templates.playlist;
+  const user_id = data.body.id;
+  const audua = new Audua(user_id);
+
+  $('#user').html(userTemplate(data.body));
+
+  audua.getRecentlyPlayed();
+  audua.getAllPlaylists().done(function(data) {
+    audua.getAuduaPlaylist(data.playlists);
+
+    $('#playlist').html(playlistTemplate({
+      playlists: data.playlists.items,
+    }));
+
+    addClicks(audua);
+    $('#login').hide();
+    $('#loggedin').show();
+  });
+}
+
+
+function requestLogout() {
+  $.ajax({
+    url: '/logout',
+  });
+}
+
+
+function requestRefresh() {
+  $.ajax({
+    url: '/refresh_token',
   });
 }
 
 
 $(document).ready(function() {
-  var templates = compileAll();
-  rememberChoice();
+  const templates = compileAll();
+  rememberChoice(); // adds click listener to checkbox
 
-  var access_token = readCookie(0),
-      refresh_token = readCookie(1),
-      error = readCookie(2);
+  let cookies = readCookie('__session');
 
-  if (error) {
-    showError(error);
-  } else {
+  if ('error' in cookies) {
+    showError(cookies.error);
+  } else if ('access_token' in cookies) {
     $('#error').hide();
-
-    if (access_token) {
-      loadProfile(access_token, templates);
-      $('#login').hide();
-      $('#loggedin').show();
-    } else if (refresh_token) {
-      $.ajax({
-        url: '/refresh_token',
-      });
-    } else {
-      $('#login').show();
-      $('#loggedin').hide();
-    }
+    requestUser(cookies.access_token, templates);
+  } else {
+    $('#login').show();
+    $('#loggedin').hide();
   }
 });

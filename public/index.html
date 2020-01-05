@@ -11,10 +11,11 @@
     <meta name="keywords" content="playlist, connect, music, shuffle">
 
     <!-- icons -->
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon/android-chrome-512x512.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon/android-chrome-192x192.png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
-    <link rel="manifest" href="favicon/site.webmanifest">
     <link rel="mask-icon" href="favicon/safari-pinned-tab.svg" color="#9A0794">
     <meta name="msapplication-TileColor" content="#FD3A0F">
     <meta name="theme-color" content="#F7D4F6">
@@ -31,6 +32,7 @@
       <div id="error">
         <h2>oops. something went wrong.</h2>
         <h3 id="error-msg"></h3>
+        <a href="/logout" class="btn-txt"><button>go back</button></a>
       </div>
       <div id="login">
         <h1>log in to audua</h1>
@@ -68,7 +70,7 @@
         <p class="clickable" onclick="showHelp()">how does it work? <i class="fas fa-chevron-down"></i></p>
         <p class="info" id="help">
           when you follow the steps below, audua will create a new playlist titled 'audua: shuffled' on your spotify account.<br><br>
-          this playlist will contain the songs from the existing playlist you selected, shuffled in the way you choose.
+          audua: shuffled will contain all the tracks from an existing playlist of your selection, shuffled in whatever way you choose.
         </p>
       </div>
 

@@ -9,17 +9,7 @@ class Audua {
   }
 
 
-  getRecentlyPlayed() {
-    const _this = this;
-    $.ajax({
-      url: '/recent',
-    }).done(function(data) {
-      for (var t in data.tracks) {
-        _this.recents.push(data.tracks[t].track.uri);
-      }
-    });
-  }
-
+  // playlist functions
 
   getAllPlaylists() {
     const _this = this;
@@ -40,30 +30,15 @@ class Audua {
         return;
       }
     }
-
     this.audua_playlist = null;
   }
 
 
-  selectShuffle(ev) {
-    $('.shuffle-option').removeClass('selected');
-    $(ev.target).addClass('selected');
-    this.shuffle = ev.target.id;
-  }
-
-
-  shufflePlaylist(playlist_id) {
+  updateAuduaPlaylist(shuffled) {
     const _this = this;
-    if (_this.audua_playlist) {
-      this.getTracks(playlist_id, [], 0).then(function(tracks) {
-        var shuffled = _this.shuffleTracks(tracks);
-        _this.modifyPlaylist(shuffled);
-      });
-    } else {
-      _this.createPlaylist().then(function(data) {
-        _this.shufflePlaylist(playlist_id);
-      });
-    }
+    this.getPlaylist(this.audua_playlist).then(function(trackLists) {
+      _this.addTracks(shuffled);
+    });
   }
 
 
@@ -81,59 +56,124 @@ class Audua {
         resolve(true);
       });
     });
-
     return promise;
   }
 
 
-  modifyPlaylist(shuffled) {
+  shufflePlaylist(playlist_id) {
     const _this = this;
-    this.getTracks(this.audua_playlist, [], 0).then(function(tracks) {
-      if (tracks.length) {
-        var fiftyOrLess = Math.min(50, tracks.length);
-        var begin = tracks.slice(0, fiftyOrLess);
-        var end = tracks.slice(fiftyOrLess);
+    if (_this.audua_playlist) {
+      return this.getPlaylist(playlist_id).then(function(trackLists) {
+        // compile tracks
+        let allTracks = [];
+        for (let list in trackLists) {
+          if (trackLists[list].length) {
+            for (let track in trackLists[list]) {
+              allTracks.push(trackLists[list][track].track);
+            }
+          }
+        }
+        return _this.shuffleTracks(allTracks);
+      }).then(function(shuffled) {
+        return _this.updateAuduaPlaylist(shuffled);
+      }).catch(function(error) {
+        console.log(error);
+      });
+    } else {
+      return _this.createPlaylist().then(function(data) {
+        return _this.shufflePlaylist(playlist_id);
+      });
+    }
+  }
 
-        return _this.removeTracks(begin).done(function(data) {
-          console.log('removed tracks...');
-          _this.modifyPlaylist(shuffled, end);
+
+  getPlaylist(playlist_id) {
+    const _this = this;
+    let promise = new Promise(function(resolve, reject) {
+      // initial request to get length of playlist
+      _this.getTracks(playlist_id, 0).done(function(data) {
+        resolve(data);
+      });
+    });
+
+    return promise.then(function(data) {
+      // get tracks & clear audua playlist
+      return Promise.all(
+        _this.generatePromises(playlist_id, (data.tracks.total))
+      );
+    }).catch(function(error) {
+      console.log(error);
+    });
+  }
+
+
+  generatePromises(playlist_id, numTracks) {
+    const _this = this;
+    let numPromises = Math.ceil(numTracks/ 100);
+    let promises = [];
+
+    for (var p=0; p<numPromises; p++) {
+      let promise = new Promise(function(resolve, reject) {
+        // each request to spotify api returns 100 tracks
+        _this.getTracks(playlist_id, (100 * p)).done(function(data) {
+
+          if (playlist_id === _this.audua_playlist) {
+            Promise.all(_this.clearPlaylist(data.tracks.items)).then(function(data) {
+              resolve([]);
+            });
+          } else {
+            resolve(data.tracks.items);
+          }
+
         });
-      } else {
-        return _this.addTracks(shuffled);
+      });
+      promises.push(promise);
+    }
+
+    return promises;
+  }
+
+
+  clearPlaylist(trackList) {
+    const _this = this;
+    let promises = [];
+
+    for (let t = 0; t < trackList.length; t += 50) {
+      let promise = new Promise(function(resolve, reject) {
+        // limit each request to 50 tracks to keep request headers short
+        let subset = trackList.slice(t, Math.min(t + 50, trackList.length));
+        _this.removeTracks(subset).done(function(data) {
+          resolve(true);
+        });
+      });
+
+      promises.push(promise);
+    }
+    return promises;
+  }
+
+
+  // track functions
+
+  getRecentlyPlayed() {
+    const _this = this;
+    $.ajax({
+      url: '/recent',
+    }).done(function(data) {
+      for (var t in data.tracks) {
+        _this.recents.push(data.tracks[t].track.uri);
       }
     });
   }
 
-
-  getTracks(playlist_id, retrieved, offset) {
-    const _this = this;
-    var promise = new Promise(function(resolve, reject) {
-      $.ajax({
-        url: '/tracks',
-        data: {
-          playlist_id: playlist_id,
-          offset: offset,
-        },
-      }).done(function(data) {
-        var items = data.tracks.items;
-
-        for (var i in items) {
-          retrieved.push({
-            'uri': items[i].track.uri,
-          });
-        }
-
-        if (items.length < 100) {
-          resolve(retrieved);
-        } else {
-          _this.getTracks(playlist_id, retrieved, offset + 100).then(function(tracks) { // get next 100 tracks
-            resolve(tracks);
-          });
-        }
-      });
+  getTracks(playlist_id, offset) {
+    return $.ajax({
+      url: '/tracks',
+      data: {
+        playlist_id: playlist_id,
+        offset: offset,
+      },
     });
-
-    return promise;
   }
 
 
@@ -160,10 +200,16 @@ class Audua {
 
   removeTracks(trackList) {
     const _this = this;
+    let uris = [];
+
+    for (let track in trackList) {
+      uris.push(trackList[track].track.uri);
+    }
+
     return $.ajax({
       url: '/remove_tracks',
       data: {
-        tracks: JSON.stringify({uris: trackList}),
+        uris: uris,
         playlist_id: _this.audua_playlist,
       },
     });
@@ -171,31 +217,36 @@ class Audua {
 
 
   shuffleTracks(tracks) {
-    var shuffled = [];
-    var recentTracks = [];
+    const _this = this;
+    return new Promise(function(resolve, reject) {
+      var shuffled = [];
+      var recentTracks = [];
 
-    for (var t in tracks) {
-      var uri = tracks[t].uri;
-      if (this.shuffle === 'deep-tracks' && this.recents.includes(uri)) {
-        recentTracks.push(uri);
-      } else {
-        shuffled.push(uri);
+      for (var t in tracks) {
+        var uri = tracks[t].uri;
+        if (_this.shuffle === 'deep-tracks' && _this.recents.includes(uri)) {
+          recentTracks.push(uri);
+        } else {
+          shuffled.push(uri);
+        }
       }
-    }
 
-    shuffled = this.fisherYates(shuffled);
-    recentTracks.reverse(); // add recently played tracks in reverse order
+      shuffled = _this.fisherYates(shuffled);
+      recentTracks.reverse();
 
-    for (var r in recentTracks) {
-      shuffled.push(recentTracks[r]);
-    }
+      // add recently played tracks in reverse order
+      for (var r in recentTracks) {
+        shuffled.push(recentTracks[r]);
+      }
 
-    return shuffled;
+      resolve(shuffled);
+    });
   }
 
 
-  /* implements Fisher-Yates algorithm
-  ** credit: https://javascript.info/task/shuffle */
+  // implements Fisher-Yates algorithm
+  // credit: https://javascript.info/task/shuffle
+
   fisherYates(array) {
     for (let i = array.length - 1; i > 0; i--) {
       let j = Math.floor(Math.random() * (i + 1));
@@ -205,6 +256,14 @@ class Audua {
     return array;
   }
 
+
+  // ui functions
+
+  selectShuffle(ev) {
+    $('.shuffle-option').removeClass('selected');
+    $(ev.target).addClass('selected');
+    this.shuffle = ev.target.id;
+  }
 
   showComplete() {
     const _this = this;
