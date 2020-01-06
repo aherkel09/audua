@@ -179,6 +179,13 @@ class Audua {
 
   addTracks(trackList) {
     const _this = this;
+
+    for (let t in trackList) {
+      if (trackList[t].includes(':local:')) {
+        trackList.splice(t, 1);
+      }
+    }
+
     var fiftyOrLess = Math.min(50, trackList.length);
 
     return $.ajax({
@@ -190,7 +197,7 @@ class Audua {
     }).done(function(data) {
       if (fiftyOrLess == trackList.length) {
         _this.showComplete();
-      } else {
+      } else if (trackList.length) {
         var remaining = trackList.slice(fiftyOrLess);
         _this.addTracks(remaining);
       }

@@ -103,17 +103,19 @@ app.get('/callback', (req, res) => {
 
 
 app.get('/refresh_token', (req, res) => {
-  let refresh_token = JSON.parse(req.cookies.__session).refresh_token;
+  let cookie = req.cookies.__session
 
-  if (!refresh_token) {
+  if (!req.cookies.__session) {
     res.redirect('/logout');
   } else {
+    let refresh_token = JSON.parse(cookie).refresh_token;
+
     var options = {
       url: 'https://accounts.spotify.com/api/token',
       headers: { 'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64')) },
       form: {
         grant_type: 'refresh_token',
-        refresh_token: refresh_token
+        refresh_token: refresh_token,
       },
       json: true
     };
@@ -126,8 +128,7 @@ app.get('/refresh_token', (req, res) => {
         };
 
         res.cookie('__session', JSON.stringify(cookie))
-          .set('Cache-Control', 'private')
-          .redirect('/');
+          .send({body});
       } else {
         res.redirect('/logout');
       }
@@ -150,6 +151,8 @@ app.get('/me', (req, res) => {
   request.get(options, (error, response, body) => {
     if (!error && response.statusCode === 200) {
       res.send({body});
+    } else {
+      res.redirect('/logout');
     }
   });
 });
