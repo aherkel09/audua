@@ -1,12 +1,19 @@
 /* colors */
 
 :root {
-	--primary: #9A0794;
-	--secondary: #FD3A0F;
-	--accent: #98CA32;
+	--purple: #9A0794;
+	--orange: #FD3A0F;
+	--green: #98CA32;
 	--dark: #341109;
 	--light: #F7D4F6;
 }
+
+.purple { color: var(--purple); }
+.orange { color: var(--orange); }
+.green { color: var(--green); }
+.dark { color: var(--dark); }
+.light { color: var(--light); }
+
 
 
 /* tags */
@@ -19,14 +26,14 @@ html {
 }
 
 a {
-	color: var(--primary);
+	color: var(--purple);
 	cursor: pointer;
 	text-decoration: none;
   transition: transform .2s;
 }
 
 a:hover, dt:hover {
-  color: var(--accent);
+  color: var(--green);
 	transform: scale(1.05);
 }
 
@@ -47,13 +54,13 @@ button {
 }
 
 button:hover {
-	color: var(--accent);
-	border: 0.25em solid var(--accent);
+	color: var(--green);
+	border: 0.25em solid var(--green);
 	transform: scale(1.1);
 }
 
 dt {
-  color: var(--primary);
+  color: var(--purple);
   transition: transform .2s;
   margin: 0.5em;
   width: max-content;
@@ -76,8 +83,12 @@ dt {
 }
 
 .selected {
-  color: var(--secondary);
-	border: 0.25em solid var(--secondary);
+  color: var(--orange);
+	border: 0.25em solid var(--orange);
+}
+
+.pull-right {
+	margin-left: 1em;
 }
 
 #login, #loggedin, #complete, #error, .info {
@@ -88,6 +99,10 @@ dt {
 #logo-image {
 	max-width: 25%;
 	margin: 1em auto;
+}
+
+#site-description {
+	margin-bottom: 8em;
 }
 
 #remember-me {

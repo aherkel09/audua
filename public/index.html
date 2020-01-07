@@ -35,8 +35,12 @@
         <a href="/logout" class="btn-txt"><button>go back</button></a>
       </div>
       <div id="login">
+        <div id="site-description">
+          <h1>your tracks:<br>made to order</h1>
+          <h2>custom-shuffle your spotify playlists with audua</h2>
+        </div>
         <h1>log in to audua</h1>
-        <input type="checkbox" id="remember-me" value="true">remember me<br>
+        <input type="checkbox" id="remember-me" value="true"><span>remember me</span><br>
         <a href="/login" class="btn-txt" id="login-btn"><button>log in with spotify</button></a>
       </div>
 
@@ -67,7 +71,7 @@
 
     <script id="playlist-template" type="text/x-handlebars-template">
       <div id="help-container">
-        <p class="clickable" onclick="showHelp()">how does it work? <i class="fas fa-chevron-down"></i></p>
+        <p class="clickable green" onclick="showHelp()">how does it work? <i class="fas fa-chevron-down"></i></p>
         <p class="info" id="help">
           when you follow the steps below, audua will create a new playlist titled 'audua: shuffled' on your spotify account.<br><br>
           audua: shuffled will contain all the tracks from an existing playlist of your selection, shuffled in whatever way you choose.

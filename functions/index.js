@@ -234,7 +234,7 @@ app.get('/tracks', (req, res) => {
   var offset = req.query.offset;
 
   var options = {
-    url: 'https://api.spotify.com/v1/playlists/' + playlist_id + '/tracks?offset=' + offset + '&fields=total,items(track(uri))',
+    url: 'https://api.spotify.com/v1/playlists/' + playlist_id + '/tracks?offset=' + offset + '&fields=total,items(track(id,uri))',
     headers: {
       'Authorization': 'Bearer ' + access_token,
       'Accept': 'application/json',

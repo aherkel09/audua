@@ -226,27 +226,34 @@ class Audua {
   shuffleTracks(tracks) {
     const _this = this;
     return new Promise(function(resolve, reject) {
-      var shuffled = [];
-      var recentTracks = [];
+      let shuffled = [];
+      let ordered = [];
+      let recentTracks = [];
 
-      for (var t in tracks) {
-        var uri = tracks[t].uri;
+      for (let t in tracks) {
+        let uri = tracks[t].uri;
         if (_this.shuffle === 'deep-tracks' && _this.recents.includes(uri)) {
           recentTracks.push(uri);
+        } else if (_this.shuffle.includes('prop')) {
+          let prop = _this.shuffle.split('-')[1];
         } else {
           shuffled.push(uri);
         }
       }
 
-      shuffled = _this.fisherYates(shuffled);
-      recentTracks.reverse();
+      if (ordered.length) {
+        resolve(ordered);
+      } else {
+        shuffled = _this.fisherYates(shuffled);
+        recentTracks.reverse();
 
-      // add recently played tracks in reverse order
-      for (var r in recentTracks) {
-        shuffled.push(recentTracks[r]);
+        // add recently played tracks in reverse order
+        for (let r in recentTracks) {
+          shuffled.push(recentTracks[r]);
+        }
+
+        resolve(shuffled);
       }
-
-      resolve(shuffled);
     });
   }
 
