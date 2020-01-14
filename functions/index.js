@@ -16,7 +16,7 @@ const uri_choices = {
   production: 'https://audua.link/callback',
 };
 
-const redirect_uri = uri_choices.local;
+const redirect_uri = uri_choices.production;
 
 var generateRandomString = (length) => {
   var text = '';
@@ -310,7 +310,7 @@ app.get('/remove_tracks', (req, res) => {
 });
 
 
-app.get('/order_tracks', (req, res) => {
+app.get('/features', (req, res) => {
   const access_token = JSON.parse(req.cookies.__session).access_token;
   const track_ids = req.query.ids;
   let id_string = '';
@@ -335,7 +335,7 @@ app.get('/order_tracks', (req, res) => {
   request.get(options, (error, response, body) => {
     if (!error && response.statusCode === 200 && body.audio_features) {
       res.send({
-        info: body.audio_features,
+        features: body.audio_features,
       });
     }
   });

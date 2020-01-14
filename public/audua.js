@@ -172,6 +172,34 @@ class Audua {
     });
   }
 
+
+  getFeatures(tracks) {
+    const hundreds = Math.ceil(tracks.length / 100);
+    let promises = [];
+
+    for (let p=0; p<hundreds; p++) {
+      let section = tracks.slice((p*100), Math.min((p+1)*100, tracks.length));
+      let promise = new Promise(function(resolve, reject) {
+        $.ajax({
+          url: '/features',
+          data: {
+            ids: tracks,
+          },
+          success: function(data) {
+            resolve(data.features);
+          },
+          error: function(error) {
+            reject(error);
+          },
+        });
+      });
+      promises.push(promise);
+    }
+
+    return promises;
+  }
+
+
   getTracks(playlist_id, offset) {
     return $.ajax({
       url: '/tracks',
@@ -192,7 +220,7 @@ class Audua {
       }
     }
 
-    var fiftyOrLess = Math.min(50, trackList.length);
+    let fiftyOrLess = Math.min(50, trackList.length);
 
     return $.ajax({
       url: '/add_tracks',
@@ -228,8 +256,6 @@ class Audua {
     });
   }
 
-  // TODO: add function to order >100 tracks
-
   orderTracks(tracks) {
     const _this = this;
     const feature = this.shuffle.split('-')[1];
@@ -237,37 +263,31 @@ class Audua {
     const ids = tracks.map(function(track) {
       return track.id;
     });
+    let trackFeatures = [];
 
-    return new Promise(function(resolve, reject) {
-      $.ajax({
-        url: '/order_tracks',
-        data: {
-          ids: ids,
-        },
-        success: function(data) {
-          let featureValues = data.info.map(function(track, index) {
-            return {
-              index: index,
-              id: ids[index],
-              value: track[feature],
-            };
-          });
+    return Promise.all(_this.getFeatures(ids)).then(function(results) {
+      results.forEach(function(featureList) {
+        trackFeatures = trackFeatures.concat(featureList);
+      });
 
-          featureValues.sort(function(a, b) {
-            return a.value - b.value;
-          });
+      let featureValues = trackFeatures.map(function(track, index) {
+        return {
+          index: index,
+          id: ids[index],
+          value: track[feature],
+        };
+      });
 
-          if (order === 'desc') {
-            featureValues.reverse();
-          }
+      featureValues.sort(function(a, b) {
+        return a.value - b.value;
+      });
 
-          resolve(featureValues.map(function(track) {
-            return tracks[track.index].uri;
-          }));
-        },
-        error: function(error) {
-          reject(error);
-        }
+      if (order === 'desc') {
+        featureValues.reverse();
+      }
+
+      return featureValues.map(function(track) {
+        return tracks[track.index].uri;
       });
     });
   }
