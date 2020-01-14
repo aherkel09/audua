@@ -183,7 +183,7 @@ class Audua {
         $.ajax({
           url: '/features',
           data: {
-            ids: tracks,
+            ids: section,
           },
           success: function(data) {
             resolve(data.features);
