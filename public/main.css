@@ -8,11 +8,11 @@
 	--light: #F7D4F6;
 }
 
-.purple { color: var(--purple); }
-.orange { color: var(--orange); }
-.green { color: var(--green); }
-.dark { color: var(--dark); }
-.light { color: var(--light); }
+.purple { color: var(--purple); border-color: var(--purple); }
+.orange { color: var(--orange); border-color: var(--orange); }
+.green { color: var(--green); border-color: var(--green); }
+.dark { color: var(--dark); border-color: var(--dark); }
+.light { color: var(--light); border-color: var(--light); }
 
 
 
@@ -91,7 +91,7 @@ dt {
 	margin-left: 1em;
 }
 
-#login, #loggedin, #complete, #error, .info {
+#login, #loggedin, #complete, #error, #order-options, .info {
   display: none;
   margin: auto 1em;
 }
@@ -118,8 +118,21 @@ dt {
 	clear: both;
 }
 
-#help-container, #shuffle-description {
+#help-container {
 	font-size: 0.75em;
+}
+
+#order-options {
+	margin: 0.5em 0;
+}
+
+#shuffle-description {
+	display: none;
+	margin: 1em auto;
+}
+
+#description, #description-text {
+	display: inline-block;
 }
 
 #playlist-container {
@@ -131,6 +144,7 @@ dt {
 
 @media screen and (min-width: 992px) {
 	.container {
+		margin: auto 4em;
 		max-width: 50%;
 	}
 }

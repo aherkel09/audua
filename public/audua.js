@@ -6,6 +6,7 @@ class Audua {
     this.audua_playlist = null;
     this.audua_href = 'https://open.spotify.com/';
     this.shuffle = null;
+    this.order = null;
   }
 
 
@@ -73,7 +74,12 @@ class Audua {
             }
           }
         }
-        return _this.shuffleTracks(allTracks);
+
+        if (_this.shuffle.includes('feature')) {
+          return _this.orderTracks(allTracks);
+        } else {
+          return _this.shuffleTracks(allTracks);
+        }
       }).then(function(shuffled) {
         return _this.updateAuduaPlaylist(shuffled);
       }).catch(function(error) {
@@ -222,38 +228,76 @@ class Audua {
     });
   }
 
+  // TODO: add function to order >100 tracks
+
+  orderTracks(tracks) {
+    const _this = this;
+    const feature = this.shuffle.split('-')[1];
+    const order = this.order;
+    const ids = tracks.map(function(track) {
+      return track.id;
+    });
+
+    return new Promise(function(resolve, reject) {
+      $.ajax({
+        url: '/order_tracks',
+        data: {
+          ids: ids,
+        },
+        success: function(data) {
+          let featureValues = data.info.map(function(track, index) {
+            return {
+              index: index,
+              id: ids[index],
+              value: track[feature],
+            };
+          });
+
+          featureValues.sort(function(a, b) {
+            return a.value - b.value;
+          });
+
+          if (order === 'desc') {
+            featureValues.reverse();
+          }
+
+          resolve(featureValues.map(function(track) {
+            return tracks[track.index].uri;
+          }));
+        },
+        error: function(error) {
+          reject(error);
+        }
+      });
+    });
+  }
+
 
   shuffleTracks(tracks) {
     const _this = this;
+
     return new Promise(function(resolve, reject) {
       let shuffled = [];
-      let ordered = [];
       let recentTracks = [];
 
       for (let t in tracks) {
         let uri = tracks[t].uri;
         if (_this.shuffle === 'deep-tracks' && _this.recents.includes(uri)) {
           recentTracks.push(uri);
-        } else if (_this.shuffle.includes('prop')) {
-          let prop = _this.shuffle.split('-')[1];
         } else {
           shuffled.push(uri);
         }
       }
 
-      if (ordered.length) {
-        resolve(ordered);
-      } else {
-        shuffled = _this.fisherYates(shuffled);
-        recentTracks.reverse();
+      shuffled = _this.fisherYates(shuffled);
+      recentTracks.reverse();
 
-        // add recently played tracks in reverse order
-        for (let r in recentTracks) {
-          shuffled.push(recentTracks[r]);
-        }
-
-        resolve(shuffled);
+      // add recently played tracks in reverse order
+      for (let r in recentTracks) {
+        shuffled.push(recentTracks[r]);
       }
+
+      resolve(shuffled);
     });
   }
 

@@ -16,7 +16,7 @@ const uri_choices = {
   production: 'https://audua.link/callback',
 };
 
-const redirect_uri = uri_choices.production;
+const redirect_uri = uri_choices.local;
 
 var generateRandomString = (length) => {
   var text = '';
@@ -40,7 +40,7 @@ app.use(cookieParser())
 app.get('/login', (req, res) => {
   var rememberMe = req.query.remember || 'false';
   var state = generateRandomString(16) + '_' + rememberMe;
-  var scope = 'user-read-private user-read-email user-read-recently-played playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private';
+  var scope = 'user-read-email user-read-recently-played playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private';
 
   res.cookie('__session', state, {overwrite: true})
     .set('Cache-Control', 'private')
@@ -304,6 +304,38 @@ app.get('/remove_tracks', (req, res) => {
     if (!error && (response.statusCode === 200 || response.statusCode === 201)) {
       res.send({
         body: body,
+      });
+    }
+  });
+});
+
+
+app.get('/order_tracks', (req, res) => {
+  const access_token = JSON.parse(req.cookies.__session).access_token;
+  const track_ids = req.query.ids;
+  let id_string = '';
+
+  for (let t in track_ids) {
+    if (t > 0) {
+      id_string += ',';
+    }
+    id_string += String(track_ids[t]);
+  }
+
+  const options = {
+    url: 'https://api.spotify.com/v1/audio-features?ids=' + id_string,
+    headers: {
+      'Authorization': 'Bearer ' + access_token,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    json: true,
+  };
+
+  request.get(options, (error, response, body) => {
+    if (!error && response.statusCode === 200 && body.audio_features) {
+      res.send({
+        info: body.audio_features,
       });
     }
   });

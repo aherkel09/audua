@@ -39,6 +39,7 @@
           <h1>your tracks:<br>made to order</h1>
           <h2>custom-shuffle your spotify playlists with audua</h2>
         </div>
+
         <h1>log in to audua</h1>
         <input type="checkbox" id="remember-me" value="true"><span>remember me</span><br>
         <a href="/login" class="btn-txt" id="login-btn"><button>log in with spotify</button></a>
@@ -81,8 +82,30 @@
       <div id="shuffle-container">
         <h2>select a shuffle option</h2>
         <button class="shuffle-option" id="deep-tracks">deep tracks</button>
+        <button class="shuffle-option order" id="feature-acousticness">acousticness</button>
+        <button class="shuffle-option order" id="feature-danceability">danceability</button>
+        <button class="shuffle-option order" id="feature-duration_ms">duration</button>
+        <button class="shuffle-option order" id="feature-energy">energy</button>
+        <button class="shuffle-option order" id="feature-instrumentalness">instrumentalness</button>
+        <button class="shuffle-option order" id="feature-key">key signature</button>
+        <button class="shuffle-option order" id="feature-liveness">liveness</button>
+        <button class="shuffle-option order" id="feature-loudness">loudness</button>
+        <button class="shuffle-option order" id="feature-time_signature">time signature</button>
+        <button class="shuffle-option order" id="feature-tempo">tempo</button>
+        <button class="shuffle-option order" id="feature-valence">emotional valence</button>
         <button class="shuffle-option" id="random">totally random</button>
-        <p id="shuffle-description"></p>
+
+        <div id="order-options">
+          <input type="hidden" id="order-input" value="desc">
+          <button class="orange" id="desc" onclick="changeOrder(event)">high to low <i class="fas fa-arrow-down"></i></button>
+          <button id="asc" onclick="changeOrder(event)">low to high <i class="fas fa-arrow-up"></i></button>
+
+        </div>
+
+        <div id="shuffle-description">
+          <span class="green" id="description">description:</span>
+          <p id="description-text"></p>
+        </div>
       </div>
 
       <div id="playlist-container">

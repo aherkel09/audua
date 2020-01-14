@@ -135,14 +135,42 @@ function rememberChoice() {
 }
 
 
+function changeOrder(ev) {
+  let btn = ev.target.id;
+  if (btn === 'asc') {
+    $('#desc').removeClass('orange');
+    $('#asc').addClass('orange');
+    $('#order-input').attr('value', 'asc');
+  } else {
+    $('#asc').removeClass('orange');
+    $('#desc').addClass('orange');
+    $('#order-input').attr('value', 'desc');
+  }
+}
+
+
+function getOrder() {
+  return $('#order-input').attr('value');
+}
+
+
 function addClicks(audua) {
   $('.shuffle-option').click(function(ev) {
     audua.selectShuffle(ev);
     showDescription(ev.target.id);
     $('#playlist-container').show();
+  });
+
+  $('.shuffle-option:not(.order)').click(function(ev) {
+    $('#order-options').hide();
+  })
+
+  $('.order').click(function(ev) {
+    $('#order-options').show();
   })
 
   $('.playlist-name').click(function(ev) {
+    audua.order = getOrder();
     audua.shufflePlaylist(ev.target.id);
   });
 }
@@ -161,9 +189,21 @@ function showHelp() {
 
 function showDescription(choice) {
   const choices = {
-    'deep-tracks': 'recently played songs will be played last',
-    'random': 'your tracks ordered without rhyme or reason',
+    'deep-tracks': 'hear the tracks you\'ve neglected. those 3 songs you listen to every day can wait.',
+    'random': 'your tracks ordered without rhyme or reason.',
+    'feature-acousticness': 'put acoustic songs first (or last).',
+    'feature-danceability': 'start a dance party, or avoid one entirely.',
+    'feature-duration_ms': 'decide when that 26-minute power ballad you forgot you added should play.',
+    'feature-energy': 'going up? coming down? this will move the mood in the right direction.',
+    'feature-instrumentalness': 'want more cowbell? maybe less? this method has you covered.',
+    'feature-key': 'climb up the scale from C, or come down from B.',
+    'feature-liveness': 'when do you wanna hear that live version with the 12-minute tuba solo?',
+    'feature-loudness': 'fade in or fade out.',
+    'feature-tempo': 'pump the accelerator (or the brakes) as needed.',
+    'feature-time_signature': 'sort by the number of beats per measure.',
+    'feature-valence': 'good news first? bad news first? take your pick.'
   };
 
-  $('#shuffle-description').text('description: ' + choices[choice]);
+  $('#description-text').text(choices[choice]);
+  $('#shuffle-description').show();
 }
