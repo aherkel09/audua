@@ -71,7 +71,8 @@ dt {
 /* elements */
 
 .container {
-  padding: 1em;
+	max-width: 95%;
+  margin: 1em auto;
 }
 
 .clickable {
@@ -91,6 +92,10 @@ dt {
 	margin-left: 1em;
 }
 
+.footer {
+	text-align: center;
+}
+
 #login, #loggedin, #complete, #error, #order-options, .info {
   display: none;
   margin: auto 1em;
@@ -98,7 +103,7 @@ dt {
 
 #logo-image {
 	max-width: 25%;
-	margin: 1em auto;
+	margin: 0 auto;
 }
 
 #site-description {
@@ -142,9 +147,14 @@ dt {
 
 /* media queries */
 
+@media screen and (min-width: 768px) {
+	.container {
+		max-width: 75%;
+	}
+}
+
 @media screen and (min-width: 992px) {
 	.container {
-		margin: auto 4em;
 		max-width: 50%;
 	}
 }

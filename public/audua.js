@@ -174,11 +174,11 @@ class Audua {
 
 
   getFeatures(tracks) {
-    const hundreds = Math.ceil(tracks.length / 100);
+    const hundreds = Math.ceil(tracks.length / 50);
     let promises = [];
 
     for (let p=0; p<hundreds; p++) {
-      let section = tracks.slice((p*100), Math.min((p+1)*100, tracks.length));
+      let section = tracks.slice((p*50), Math.min((p+1)*50, tracks.length));
       let promise = new Promise(function(resolve, reject) {
         $.ajax({
           url: '/features',
