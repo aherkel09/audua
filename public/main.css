@@ -93,17 +93,18 @@ dt {
 }
 
 .footer {
+	margin-top: 2em;
 	text-align: center;
 }
 
-#login, #loggedin, #complete, #error, #order-options, .info {
+.info, #login, #loggedin, #faq, #complete, #error, #order-options {
   display: none;
   margin: auto 1em;
 }
 
 #logo-image {
 	max-width: 25%;
-	margin: 0 auto;
+	margin: 0.25em auto;
 }
 
 #site-description {

@@ -207,3 +207,7 @@ function showDescription(choice) {
   $('#description-text').text(choices[choice]);
   $('#shuffle-description').show();
 }
+
+function showQuestions() {
+  $('#faq').toggle();
+}
