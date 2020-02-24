@@ -40,7 +40,12 @@ app.use(cookieParser())
 app.get('/login', (req, res) => {
   var rememberMe = req.query.remember || 'false';
   var state = generateRandomString(16) + '_' + rememberMe;
-  var scope = 'user-read-email user-read-recently-played playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private';
+  var scope = `user-read-email
+               user-read-recently-played
+               playlist-read-private
+               playlist-read-collaborative
+               playlist-modify-public 
+               playlist-modify-private`;
 
   res.cookie('__session', state, {overwrite: true})
     .set('Cache-Control', 'private')
